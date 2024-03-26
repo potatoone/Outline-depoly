@@ -1,0 +1,77 @@
+version: "3"
+services:
+      
+  outline:
+    container_name: outline
+    image: outlinewiki/outline:latest
+    user: root
+    restart: always
+    command: sh -c "yarn sequelize:migrate --env production-ssl-disabled && yarn start"
+    ports:
+      - "1000:3000"
+    environment:
+      - DATABASE_URL=postgres://outline:outline_passwd@outline_postgres:5432/outline
+      - DATABASE_URL_TEST=postgres://outline:outline_passwd@outline_postgres:5432/outline-test
+      - REDIS_URL=redis://outline_redis:6379
+    volumes:
+      - ./outline/outline/file:/var/lib/outline/data
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - ./env.outline
+    depends_on:
+      - outline_postgres
+      - outline_redis
+    networks:
+      - outline-network
+
+  outline_redis:
+    container_name: outline_redis
+    image: redis:latest
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    networks:
+      - outline-network
+
+  outline_postgres:  
+    container_name: outline_postgres  
+    image: postgres:latest  
+    environment:  
+      - POSTGRES_USER=outline  
+      - POSTGRES_DB=outline  
+      - POSTGRES_PASSWORD=outline_passwd  
+    healthcheck:  
+      test: ["CMD", "pg_isready", "-q", "-d", "outline", "-U", "outline"]  
+      interval: 10s  
+      timeout: 5s  
+      retries: 3  
+      start_period: 60s  
+    volumes:  
+      - ./outline/postgres/db:/var/lib/postgresql/data  
+      - /etc/localtime:/etc/localtime:ro  
+    restart: always  
+    networks:  
+      - outline-network  
+
+  authelia:
+    image: authelia/authelia:latest  
+    container_name: authelia
+    volumes:
+      - ./authelia_config:/config
+    networks:
+      - outline-network
+    expose:
+      - 9091
+    restart: always
+    healthcheck:
+      ## In production the healthcheck section should be commented.
+      disable: true
+    environment:
+      - TZ=Australia/Melbourne
+
+networks:
+  outline-network:
+    external: false
