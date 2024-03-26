@@ -6,7 +6,7 @@
 
 theme: light #light/dark
 
-default_redirection_url: https://auth.kqgyl.com # where to redirect for a non-existent URL，一般填 authelia 的完整域名，有端口也要带上
+default_redirection_url: https://auth.example.com # where to redirect for a non-existent URL，一般填 authelia 的完整域名，有端口也要带上
 
 server:
   address: 'tcp://:9091/'
@@ -56,11 +56,11 @@ access_control:
   default_policy: deny
   rules:
     ## bypass rule
-    - domain: "auth.kqgyl.com" #This should be your authentication URL，这里不要带端口
+    - domain: "auth.example.com" #This should be your authentication URL，这里不要带端口
       policy: bypass
-    - domain: "ad.onekartoffel.cn" #example domain to protect，这里不要带端口
+    - domain: "ad.example.cn" #example domain to protect，这里不要带端口
       policy: one_factor
-    - domain: "nas.onekartoffel.cn" #example subdomain to protect，这里不要带端口
+    - domain: "nas.example.cn" #example subdomain to protect，这里不要带端口
       policy: two_factor
 
 session:
@@ -71,9 +71,9 @@ session:
   expiration: '1h'
   remember_me: '1M'
   cookies:
-    - domain: 'kqgyl.com'
-      authelia_url: 'https://auth.kqgyl.com'
-      default_redirection_url: 'https://wiki.kqgyl.com'
+    - domain: 'example.com'
+      authelia_url: 'https://auth.example.com'
+      default_redirection_url: 'https://wiki.example.com'
       name: 'authelia_session'
       same_site: 'lax'
       inactivity: '5m'
